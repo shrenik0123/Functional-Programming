@@ -1,0 +1,74 @@
+I created the function make_parser in terms of make_matcher due to their 
+similar functionality with the only major difference being that I added a path
+variable to make_parser in order to keep track of the path. I drew inspiration
+from make_matcher to create make_parser, however, I did not directly use
+make_matcher in make_parser due to the fact that although their structure is
+similar, their functionality and arguments are different. One big reason why
+I used make_matcher was because make_parser was a more specialized version of
+make_matcher except it also kept track of the path and had an acceptor which
+only accepted the empty suffix.
+
+For make_matcher, we discussed a mutually recursive function in discussion
+section. The 2 mutually recursive functions had their own functionality. One
+gets the next rule to apply while the other checks the rule to decide what to
+do. So, my function check_rule works by going through each symbol in the rule
+and based on whether that sybol is a non-terminal symbol or terminal symbol, it
+takes a decision. If it reaches a non-terminal symbol, then this means that we
+need to check more rules related to the terminal symbol, thus at this stage the
+check_rule function transfers control to the get_next_rules function. However,
+in order to remember to match the rest of the symbols, we create a curried 
+acceptor which works very similar to the make_appended_matchers concept from
+discussion section. However, if a terminal symbol is hit, then it is crucial
+to match it to the next symbol in the fragment to see if the current rule 
+matches the fragment. If it does not satify the fragment then check_rule
+returns None, which makes the make_matcher function skip that rule and try the
+next one.
+
+For make_parser, we can see that make_matcher actually follows the necessary
+path, however it does not store it and it also uses input acceptors that don't
+have to simply say that the suffix should be empty. Therefore, though
+make_matcher runs almost the same as make_parser, it is slightly different,
+which is why I was unable to use make_matcher in make_parser. Potentially, this
+could be a weakness as they both have similar functionality and could have
+potentially been implemented using just one function and multiple flags.
+Thus, we can see that make_parser resembles make_matcher, however, when it
+comes to some parameters for both the mutually recursive fucntions used to
+create make_parser, they are different and there is added functionality for
+make_parser when it comes to checking the non-terminal and terminal symbol of
+the rule as we also keep track of the path.
+
+Now that we have established that make_parser is based on make_matcher, we
+can analyze their weaknesses. Due to the functions similarity in nature, they
+both suffer from many of the same problems. One fo those problems is that the
+functions have been implemented in a left to right recursive manner. Thus, my
+solution for both functions cannot handle left recursive grammars. An example
+of this is shown below:
+
+type nonterminals = | S
+let grammar = (S, function
+                    | S -> [[N S; T"World"]; [T"Hello"]])
+The matcher and parser will fail for the fragment ["Hello"; "World"] with any 
+acceptor because it will recursively call the first rule over and over again
+and will fall into an infinite recursion and there will be a stack overflow. 
+This is a weakness. One way to solve this is to eliminate left-recursive 
+grammar (convert it), but as stated in discussion section, this is not 
+something we are expected to be tested on.
+
+One more weakness comes, ironically, in the form of nonterminals that call each
+other in a mutual recursion sort of way. An example fo this is shown below:
+
+type nonterminals = | O | X | Y
+let grammar = (S, function
+                    | O -> [[N X];[N Y]]
+                    | X -> [[N Y];[T"x"]]
+                    | Y -> [[N X];[T"y"]])
+
+In this case if I try to match or parse the fragment ["x"] given any acceptor,
+it will fail. This is because the rules will mutually call each other 
+recursively infinitely, which will result in a stack overflow error. As such, 
+most grammar that have reachable rules with cycles will fail for some fragment
+due to infinite recursion.
+
+In conclusion, the solution works within the limitations of this class.
+However, it has some weakness, mostly pertaining to infinite loops and
+detecting cycles.
