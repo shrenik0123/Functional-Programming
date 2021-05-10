@@ -1,0 +1,11 @@
+Q1. I used recursion to check if each element of a was in b.
+Q2. I used the function I wrote in Q1. This is because there is a mathical concept: If a is a subset of b and b is a subset of a, then a = b.
+Q3. At first I appended the lists together using the @ symbol. But I decided that I wanted to remove duplicates, so I created a find_unique helper function which took a@b as a parameter and found the unique elements in it.
+Q4. I used the function from Q3. I recursively found the set_union of all the sets in a.
+Q5. I had to think about this question. First I approached it by trying to construct a set, which resulted in infinite elements. However, I realized I could actually leverage type of a list in OCaml and decided that it gave a more rigorous explanation.
+Q6. For this function, I used simple recursion.
+Q7. This was the most difficult function to build. Thus, I broke it up into numerous parts.
+    I wrote a function that finds the non-terminal symbols in the right hand side of a rule called get_non_terminal_symbols.
+    I assumed that the rules were in hierarchical order. So, I wrote a recursive function called get_all_nt_symbols that got all the non-terminal symbols in the order the rules were given.
+    I had to think about what to do if the rules were not in hierarchical order. So, I wrote a function called reachable_rules, which took inspiration from the function I wrote in Q6. I used (=) as my predicate, get_all_nt_symbols as my f and the [starting symbol] as x. Due to type issues I modelled my function after Q6. It iterates through all the rules and finds the non-terminal symbols until the previous and current iteration had the same non-terminal symbols as this meant there are no more rules that can give a new non-terminal symbol.
+    Lastly, the function filter_reachable used reachable_rules to find all the non-terminal symbols that could be reached and filtered out the rules that didn't have one of the specified non-terminal symbols and returned the answer.
